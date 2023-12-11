@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 add_executable(cppjson_test_ch01
     cppjson.cpp
-    test.cpp
+    cppjsonTest.cpp
 )
 
 # 添加头文件目录
