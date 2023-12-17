@@ -31,6 +31,24 @@ static void test_parse_null() {
     EXPECT_TYPE(cppjsonType::CPPJSON_NULL, cppjson_get_type(&v));
 }
 
+//
+static void test_parse_true() {
+    cppjson_value v;
+    v.type = cppjsonType::CPPJSON_FALSE;
+
+    EXPECT_TYPE(cppjsonParseCode::OK, cppjson_parse(&v, "true"));
+    EXPECT_TYPE(cppjsonType::CPPJSON_TRUE, cppjson_get_type(&v));
+}
+
+//
+static void test_parse_false() {
+    cppjson_value v;
+    v.type = cppjsonType::CPPJSON_TRUE;
+
+    EXPECT_TYPE(cppjsonParseCode::OK, cppjson_parse(&v, "false"));
+    EXPECT_TYPE(cppjsonType::CPPJSON_FALSE, cppjson_get_type(&v));
+}
+
 // 
 static void test_parse_expect_value() {
     cppjson_value v;
@@ -68,6 +86,8 @@ static void test_parse_root_not_singular() {
 
 static void test_parse() {
     test_parse_null();
+    test_parse_true();
+    test_parse_false();
     test_parse_expect_value();
     test_parse_invalid_value();
     test_parse_root_not_singular();
