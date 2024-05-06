@@ -18,7 +18,8 @@ enum class cppjsonParseCode {
     OK,
     EXPECT_VALUE,
     INVALID_VALUE,
-    ROOT_NOT_SINGULAR
+    ROOT_NOT_SINGULAR,
+    INFTY_NUMBER,
 };
 
 // json 是树形结构，每个节点用 cppjson_value 结构体表示

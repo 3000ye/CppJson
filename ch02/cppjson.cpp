@@ -1,5 +1,8 @@
 #include "include/cppjson.hpp"
 #include <assert.h>
+#include <stdexcept>
+#include <string>
+#include <iostream>
 
 
 typedef struct {
@@ -26,7 +29,7 @@ static cppjsonParseCode cppjson_parse_root_not_singular(cppjson_context* s) {
     else return cppjsonParseCode::OK;
 }
 
-// 检测 null 值
+// 解析 null 值
 static cppjsonParseCode cppjson_parse_null(cppjson_context* s, cppjson_value* v) {
     const std::string str = s->json;
 
@@ -39,7 +42,7 @@ static cppjsonParseCode cppjson_parse_null(cppjson_context* s, cppjson_value* v)
     }
 }
 
-// 检测 true 值
+// 解析 true 值
 static cppjsonParseCode cppjson_parse_true(cppjson_context* s, cppjson_value* v) {
     const std::string str = s->json;
 
@@ -52,7 +55,7 @@ static cppjsonParseCode cppjson_parse_true(cppjson_context* s, cppjson_value* v)
     }
 }
 
-// 检测 false 值
+// 解析 false 值
 static cppjsonParseCode cppjson_parse_false(cppjson_context* s, cppjson_value* v) {
     const std::string str = s->json;
 
@@ -65,6 +68,44 @@ static cppjsonParseCode cppjson_parse_false(cppjson_context* s, cppjson_value* v
     }
 }
 
+// 解析 number 值
+static cppjsonParseCode cppjson_parse_number(cppjson_context* s, cppjson_value* v) {
+    const std::string str = s->json;
+    double number;
+
+    std::cout << "number = " << str << std::endl;
+
+    // 检查是否存在 正号
+    if (str[0] == '+') return cppjsonParseCode::INVALID_VALUE;
+
+    try { // 将 string 转为 double 类型
+        number = std::stod(str);
+    }
+    catch (const std::invalid_argument& e) { // 如果无法正常转换，则返回 INVALID_VALUE
+        fprintf(stderr, "%s:%d, Invalid argument: %s\n", __FILE__, __LINE__, str.c_str());
+        return cppjsonParseCode::INVALID_VALUE;
+    }
+    catch (const std::out_of_range& e) { // 如果指数过大，返回 INFTY_NUMBER
+        fprintf(stderr, "%s:%d, Infty number: %s\n", __FILE__, __LINE__, str.c_str());
+        return cppjsonParseCode::INFTY_NUMBER;
+    }
+    
+    v->type = cppjsonType::CPPJSON_NUMBER;
+    v->number = number;
+
+    int i = (str[0] == '-' ? 0 : -1);
+    while (str[++i]) {
+        std::string sub = str.substr(0, i + 1);
+        double temp = std::stod(sub);
+        if (temp == number) {
+            s->json = str.substr(i + 1, str.size());
+            break;
+        }
+    }
+
+    return cppjsonParseCode::OK;
+}
+
 // 解析 value
 static cppjsonParseCode cppjson_parse_value(cppjson_context* s, cppjson_value* v) {
     const std::string str = s->json;
@@ -73,8 +114,8 @@ static cppjsonParseCode cppjson_parse_value(cppjson_context* s, cppjson_value* v
         case 'n': return cppjson_parse_null(s, v);
         case 't': return cppjson_parse_true(s, v);
         case 'f': return cppjson_parse_false(s, v);
+        default: return cppjson_parse_number(s, v);
         case '\0': return cppjsonParseCode::EXPECT_VALUE;
-        default: return cppjsonParseCode::INVALID_VALUE;
     }
 }
 
