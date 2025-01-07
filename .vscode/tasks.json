@@ -1,0 +1,41 @@
+//.vscode/tasks.json
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "mkdirbuild",
+            "command": "mkdir",
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "args": ["-p", "build"]
+        },
+        {
+            "type": "shell",
+            "label": "cmake",
+            "command": "cmake",
+            "args": [
+                "-DCMAKE_BUILD_TYPE=Debug",
+                //在此处添加其它CMAKE选项
+                ".."
+            ],
+            "options": {
+                "cwd": "${fileDirname}/build"
+            },
+        },
+        {
+            "label": "make",
+            "command": "make",
+            "args": ["-j16",], //根据机器cpu核心数量自行调整
+            "options": {
+                "cwd": "${fileDirname}/build"
+            },
+        },
+        {
+            "label": "build",
+            "dependsOrder": "sequence",
+            "dependsOn": ["mkdirbuild", "cmake", "make"],
+        },
+    ],
+}
